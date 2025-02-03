@@ -1,80 +1,48 @@
-// Testbench for clock divider
-//
-// Date: November 11, 2021
-// Author: Shawn Hymel
-// License: 0BSD
+// Testbench for a clock- divided 4-bit counter
+// Heavily based on Shawn Hymel's and John Winans's FPGA tutorials.
 
-// Defines timescale for simulation: <time_unit> / <time_precision>
-`timescale 1 ns / 10 ps
-
-// Define our testbench
+`timescale 1 ns / 10 ps		// ` is a compiler directive for iverilog.
+				// Defines timescale for simulation: <time_unit> / <time_precision>
+				// <time_unit> is equivalent to #1. So in this case, #10 is 10[ns]
 module tb();
-
-    // Internal signals
-    wire    out;
+    // We have no ports in our ports list. There are not inputs/outputs in the testbench. Everything is contained internally.
     wire[3:0] led;
+    reg       clk = 0;
+    reg       rst = 0; 
 
-    // Storage elements (set initial values to 0)
-    reg     clk = 0;
-    //reg     rst = 0;            
-    reg     rst = 1;            
-
-    // Simulation time: 10000 * 1 ns = 10 us
-    //localparam DURATION = 10000;
-    localparam DURATION = 2000000000;
+    localparam DURATION = 2000000000;	// Simulation duration time
     
-    // Generate clock signal: 1 / ((2 * 41.67) * 1 ns) = 11,999,040.08 MHz
-    always begin
-        
+    // Generate clock signal: 1 / ((2 * 41.67) * 1 ns) = 11,999,040.08 MHz. The 2* for a complete cycle
+    // This always block doesn't have a sensitivity list. When we're simulating, we can do this. See John's
+    // lecture on timing at https://www.youtube.com/watch?v=xZhl64vHJ-E&list=PL3by7evD3F52On-ws9pcdQuEL-rYbNNFB&index=11
+    always begin	
         // Delay for 41.67 time units
         // 10 ps precision means that 41.667 is rounded to 41.67
         #41.667
-        
-        // Toggle clock line
         clk = ~clk;
     end
     
    // Instantiate the unit under test (UUT)
-
-   //clock_divider #(.COUNT_WIDTH(4), .MAX_COUNT(6 - 1)) uut (
-   //     .clk(clk),
-   //     .rst(rst),
-   //     .out(out)
-   // );
-   
-   //clock_counter uut (
-   //     .div_clk(clk),
-   //     .rst(rst),
-   //     .led(led)
-   // );
-
-   top #(.COUNT_WIDTH_TOPDEL(32), .MAX_COUNT_TOPDEL(6000000 - 1)) uut (
+   top #(.COUNT_WIDTH(32), .MAX_COUNT(6000000 - 1)) uut (
 	.clk(clk),
-	.rst_btn(rst),
+	.rst_btn(~rst),
 	.led(led)
    );
     
     // Pulse reset line high at the beginning
+    // Initial blocks only run once, and are only for simulation
     initial begin
-        #1000
+        #10
         rst = 1'b1;
-        #1000
+        #1
         rst = 1'b0;
-        #1000
-        rst = 1'b1;
     end
     
     // Run simulation (output to .vcd file)
     initial begin
-    
-        // Create simulation output file 
-        $dumpfile("top_tb.vcd");
-        $dumpvars(0, tb);
-        
-        // Wait for given amount of time for simulation to complete
+        $dumpfile("top_tb.vcd");  // $ denote system task/function. Helps control the simulation, not synthesizable
+        $dumpvars(0, tb);	  // First parameter is depth of recorded modules. 0 - record all
         #(DURATION)
-        
-        // Notify and end simulation
         $display("Finished!");
         $finish;
     end

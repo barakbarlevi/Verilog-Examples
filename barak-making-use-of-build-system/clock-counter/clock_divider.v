@@ -1,41 +1,14 @@
-// Simple clock divider
-//
-// Parameters:
-//      COUNT_WIDTH - Bus width for counter
-//      MAX_COUNT   - Maximum value of counter
-// 
-// Inputs:
-//      clk         - Input clock
-//      rst         - Reset signal
-// 
-// Outputs:
-//      out         - Divided clock output
-// 
-// Toggles out line at a divided rate given clk input.
-//
-// Date: November 8, 2021
-// Author: Shawn Hymel
-// License: 0BSD
-
 // Clock divider
 module clock_divider #(
-
-    // Parameters
-    parameter                     COUNT_WIDTH = 24,
-    parameter [COUNT_WIDTH-1:0]   MAX_COUNT   = 6000000 - 1
+    parameter                     COUNT_WIDTH = 24,		// Bus width for local counter
+    parameter [COUNT_WIDTH-1:0]   MAX_COUNT   = 6000000 - 1	// Maximum value of counter 
 ) (
-
-    // Inputs
     input       clk,
     input       rst,
-    
-    // Outputs
-    output  reg out    
+    output  reg out	// This is div_clk, the divided clock output. out needs to be registered
+			// because we're going to use a clock to control it and store its signal level. https://youtu.be/0BKyiY8R5NU?t=175
 );
-
-    // Internal signals
     wire rst;
-    //reg div_clk;
     reg [COUNT_WIDTH:0] count;
     
     // Clock divider
@@ -45,7 +18,7 @@ module clock_divider #(
             out <= 0;
         end else if (count == MAX_COUNT) begin
             count <= 0;
-            out <= ~out;
+            out <= ~out;	// Toggle the line ata divided rate given clk input
         end else begin
             count <= count + 1;
         end
