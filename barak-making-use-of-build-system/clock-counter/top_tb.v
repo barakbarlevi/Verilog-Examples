@@ -11,7 +11,8 @@ module tb();
     reg       rst = 0; 
 
     localparam DURATION = 2000000000;	// Simulation duration time
-    
+    //localparam DURATION = 20000;	// Simulation duration time    
+
     // Generate clock signal: 1 / ((2 * 41.67) * 1 ns) = 11,999,040.08 MHz. The 2* for a complete cycle
     // This always block doesn't have a sensitivity list. When we're simulating, we can do this. See John's
     // lecture on timing at https://www.youtube.com/watch?v=xZhl64vHJ-E&list=PL3by7evD3F52On-ws9pcdQuEL-rYbNNFB&index=11
@@ -24,6 +25,7 @@ module tb();
     
    // Instantiate the unit under test (UUT)
    top #(.COUNT_WIDTH(32), .MAX_COUNT(6000000 - 1)) uut (
+   //top #(.COUNT_WIDTH(4), .MAX_COUNT(6 - 1)) uut (
 	.clk(clk),
 	.rst_btn(~rst),
 	.led(led)
